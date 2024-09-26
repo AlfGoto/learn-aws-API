@@ -31,7 +31,7 @@
     "@joinsezame/aws-testing": "*",
     "@joinsezame/awscdk-app-ts": "^2.4.0",
     "@types/jest": "*",
-    "@types/node": "^18",
+    "@types/node": "^18.19.53",
     "@typescript-eslint/eslint-plugin": "^7",
     "@typescript-eslint/parser": "^7",
     "aws-cdk": "^2.1.0",
