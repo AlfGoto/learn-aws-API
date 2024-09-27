@@ -10,23 +10,23 @@ import * as lambda from "aws-cdk-lib/aws-lambda"
 import * as destinations from "aws-cdk-lib/aws-lambda-destinations"
 import * as levs from "aws-cdk-lib/aws-lambda-event-sources"
 import * as ln from "aws-cdk-lib/aws-lambda-nodejs"
+import { Lambda } from "aws-cdk-lib/aws-ses-actions"
 
 export interface BackProps extends cdk.StackProps {
   stage: string
   serviceName: string
 }
+const tableName = "Table"
+process.env.TABLE_NAME = tableName
 
 export class Back extends cdk.Stack {
   constructor(scope: Construct, id: string, props: BackProps) {
     super(scope, id, props)
 
-
-
-    const table = new ddb.TableV2(this, "Table", {
+    const table = new ddb.TableV2(this, tableName, {
       partitionKey: { name: "time", type: ddb.AttributeType.NUMBER },
       sortKey: { name: "state", type: ddb.AttributeType.STRING },
     })
-
 
 
     const api = new apigw.HttpApi(this, "Api", {
@@ -39,7 +39,7 @@ export class Back extends cdk.Stack {
     })
 
     const apiFunction = new ln.NodejsFunction(this, "ApiFunction", {
-      entry: `lambda/getAllTodos`,
+      entry: `lambda/api/index.ts`,
       environment: {
         STAGE: props.stage,
         SERVICE: props.serviceName,
