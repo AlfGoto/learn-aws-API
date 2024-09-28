@@ -35,7 +35,7 @@ export class Back extends Stack {
       bundling: { externalModules: ['aws-sdk',], },
       depsLockFilePath: join(__dirname, 'lambdas', 'package-lock.json'),
       environment: {
-        PRIMARY_KEY: 'itemId',
+        PRIMARY_KEY: 'date',
         TABLE_NAME: dynamoTable.tableName,
       },
       runtime: Runtime.NODEJS_20_X,
@@ -43,33 +43,21 @@ export class Back extends Stack {
 
 
     const getAllLambda = new NodejsFunction(this, 'getAllItemsFunction', { entry: join(__dirname, 'lambdas', 'get-all.ts'), ...nodeJsFunctionProps, });
-    // const createOneLambda = new NodejsFunction(this, 'createItemFunction', { entry: join(__dirname, 'lambdas', 'create.ts'), ...nodeJsFunctionProps, });
-    // const getOneLambda = new NodejsFunction(this, 'getOneItemFunction', { entry: join(__dirname, 'lambdas', 'get-one.ts'), ...nodeJsFunctionProps, });
-    // const updateOneLambda = new NodejsFunction(this, 'updateItemFunction', { entry: join(__dirname, 'lambdas', 'update-one.ts'), ...nodeJsFunctionProps, });
-    // const deleteOneLambda = new NodejsFunction(this, 'deleteItemFunction', { entry: join(__dirname, 'lambdas', 'delete-one.ts'), ...nodeJsFunctionProps, });
+    const createOneLambda = new NodejsFunction(this, 'createOneFunction', { entry: join(__dirname, 'lambdas', 'create-one.ts'), ...nodeJsFunctionProps, });
 
     dynamoTable.grantReadWriteData(getAllLambda);
-    // dynamoTable.grantReadWriteData(createOneLambda);
-    // dynamoTable.grantReadWriteData(getOneLambda);
-    // dynamoTable.grantReadWriteData(updateOneLambda);
-    // dynamoTable.grantReadWriteData(deleteOneLambda);
+    dynamoTable.grantReadWriteData(createOneLambda);
 
     const getAllIntegration = new LambdaIntegration(getAllLambda);
-    // const createOneIntegration = new LambdaIntegration(createOneLambda);
-    // const getOneIntegration = new LambdaIntegration(getOneLambda);
-    // const updateOneIntegration = new LambdaIntegration(updateOneLambda);
-    // const deleteOneIntegration = new LambdaIntegration(deleteOneLambda);
+    const createOneIntegration = new LambdaIntegration(createOneLambda);
 
     const api = new RestApi(this, 'itemsApi', { restApiName: 'Items Service' });
-    const items = api.root.addResource('items');
+    const items = api.root.addResource('todo');
     items.addMethod('GET', getAllIntegration);
-    // items.addMethod('POST', createOneIntegration);
+    items.addMethod('POST', createOneIntegration);
     addCorsOptions(items);
 
     // const singleItem = items.addResource('{id}');
-    // singleItem.addMethod('GET', getOneIntegration);
-    // singleItem.addMethod('PATCH', updateOneIntegration);
-    // singleItem.addMethod('DELETE', deleteOneIntegration);
     // addCorsOptions(singleItem);
   }
 }
