@@ -1,13 +1,6 @@
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 import { DynamoDB } from '@aws-sdk/client-dynamodb';
-// import { IgnoreMode } from 'aws-cdk-lib';
-// import { Parameter } from 'aws-cdk-lib/aws-appconfig';
 
-interface Parameters{
-    state: "todo" | "inprogress" | "done",
-    name: string,
-    date: number
-}
 
 const TABLE_NAME = process.env.TABLE_NAME || '';
 
@@ -20,16 +13,22 @@ export const handler = async (event: any = {}): Promise<any> => {
     const item = typeof event.body == 'object' ? event.body : JSON.parse(event.body);
     item['date'] = Date.now()
 
-    if(!item.name || !item.state) { return { statusCode: 500, body: 'Wrong parameters' }; } 
+    if (!item.name || !item.state) { return { statusCode: 500, body: 'Wrong parameters' }; }
     const params = {
         TableName: TABLE_NAME,
         Item: item
     };
-    
+
 
     try {
         await db.put(params);
-        return { statusCode: 201, body: 'success !' };
+        return {
+            statusCode: 201, body: 'success !', headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Methods': 'OPTIONS,GET,POST',
+            },
+        };
     } catch (dbError) { return { statusCode: 500, body: dbError }; }
 
 };
